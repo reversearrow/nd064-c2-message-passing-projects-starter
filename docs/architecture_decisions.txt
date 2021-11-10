@@ -1,0 +1,2 @@
+- Communication from the Front End to the API will be via RESTful interface with JSON as the data.
+- Communication between the services via the gRPC and KAFKA.
