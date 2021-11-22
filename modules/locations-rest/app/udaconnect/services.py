@@ -3,13 +3,14 @@ from datetime import datetime, timedelta
 from typing import Dict, List
 
 from app import db
-from app.udaconnect.models import  Location
+from app.udaconnect.models import Location
 from app.udaconnect.schemas import LocationSchema
 from geoalchemy2.functions import ST_AsText, ST_Point
 from sqlalchemy.sql import text
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger("udaconnect-api")
+
 
 class LocationService:
     @staticmethod
@@ -39,3 +40,19 @@ class LocationService:
         db.session.commit()
 
         return new_location
+
+
+    @staticmethod
+    def retrieve_all() -> List[Location]:
+        output = []
+        locations = db.session.query(Location).all() 
+        for loc in locations:
+            location, coord_text = (
+                db.session.query(Location, Location.coordinate.ST_AsText())
+                .filter(Location.id == loc.id)
+                .one()
+            )
+
+            location.wkt_shape = coord_text 
+            output.append(location)
+        return output

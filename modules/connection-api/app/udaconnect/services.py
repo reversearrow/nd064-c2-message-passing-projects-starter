@@ -23,11 +23,10 @@ class ConnectionService:
         large datasets. This is by design: what are some ways or techniques to help make this data integrate more
         smoothly for a better user experience for API consumers?
         """
-        locations: List = db.session.query(Location).filter(
-            Location.person_id == person_id
-        ).filter(Location.creation_time < end_date).filter(
-            Location.creation_time >= start_date
-        ).all()
+
+        all_locations: List = LocationService.retrieve_all()
+
+        locations = [loc for loc in all_locations if loc.person_id == int(person_id) and loc.creation_time < end_date and loc.creation_time > start_date]
 
         # Cache all users in memory for quick lookup
         person_map: Dict[str, Person] = {person.id: person for person in PersonService.retrieve_all()}
@@ -47,7 +46,7 @@ class ConnectionService:
             )
 
         query = text(
-            """
+        """
         SELECT  person_id, id, ST_X(coordinate), ST_Y(coordinate), creation_time
         FROM    location
         WHERE   ST_DWithin(coordinate::geography,ST_SetSRID(ST_MakePoint(:latitude,:longitude),4326)::geography, :meters)
@@ -109,6 +108,22 @@ class LocationService:
         db.session.commit()
 
         return new_location
+
+
+    @staticmethod
+    def retrieve_all() -> List[Location]:
+        output = []
+        locations = db.session.query(Location).all() 
+        for loc in locations:
+            location, coord_text = (
+                db.session.query(Location, Location.coordinate.ST_AsText())
+                .filter(Location.id == loc.id)
+                .one()
+            )
+
+            location.wkt_shape = coord_text 
+            output.append(location)
+        return output
 
 
 class PersonService:
