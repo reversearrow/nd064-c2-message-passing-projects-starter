@@ -1,0 +1,19 @@
+- Obtain the locations.proto file from the locations-producer file. 
+
+## Generating gRPC files
+`pip install grpcio-tools`
+`python -m grpc_tools.protoc -I./ --python_out=./ --grpc_python_out=./ order.proto`
+
+- Note locations-producer, locations-consumer, Kafka, locations-api and postgress needs to be running for this to work. 
+
+- Sample Payload for sending it to gPRC service
+
+```
+import grpc
+from locations_pb2_grpc import LocationServiceStub
+channel = grpc.insecure_channel("localhost:5005")
+client = LocationServiceStub(channel)
+from locations_pb2 import LocationMessage
+request = LocationMessage(person_id=1, latitude="-122.290883", longitude="37.55363")
+client.Add(request)
+```
