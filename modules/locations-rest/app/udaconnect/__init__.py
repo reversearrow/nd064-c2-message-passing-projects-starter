@@ -1,4 +1,4 @@
-from app.udaconnect.models import Location  # noqa
+from app.udaconnect.models import Location # noqa
 from app.udaconnect.schemas import LocationSchema  # noqa
 
 

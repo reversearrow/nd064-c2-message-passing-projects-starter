@@ -1,4 +1,4 @@
-
+import json
 from datetime import datetime
 
 from app.udaconnect.models import Location
@@ -13,21 +13,31 @@ from typing import Optional, List
 
 DATE_FORMAT = "%Y-%m-%d"
 
-api = Namespace("UdaConnect-location", description="locations")  # noqa
+api = Namespace("UdaConnect", description="Connections via geolocation.")  # noqa
+
+# TODO: This needs better exception handling
 
 @api.route("/locations")
-@api.route("/locations/<location_id>")
-@api.param("location_id", "Unique ID for a given Location", _in="query")
 class LocationResource(Resource):
     @accepts(schema=LocationSchema)
     @responds(schema=LocationSchema)
     def post(self) -> Location:
-        request.get_json()
+        print((request.get_json()))
+        print("request json", request)
         location: Location = LocationService.create(request.get_json())
         return location
+    
+    @responds(schema=LocationSchema, many=True)
+    def get(self) -> Location:
+        locations: List[Location] = LocationService.retrieve_all()
+        return locations
 
+
+
+@api.route("/locations/<location_id>")
+@api.param("location_id", "Unique ID for a given Location", _in="query")
+class LocationResource(Resource):        
     @responds(schema=LocationSchema)
     def get(self, location_id) -> Location:
-        print("hello world")
         location: Location = LocationService.retrieve(location_id)
         return location
