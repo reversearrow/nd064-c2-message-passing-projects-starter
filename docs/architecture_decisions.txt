@@ -1,0 +1,5 @@
+- Communication from the Front End to the API will be via RESTful interface with JSON as the data as its the most common and readable format. 
+- Communication between the services should be done via gRPC because it will be more efficient. 
+- Communcation to add new locations data will be via gRPC and KAFKA producer to make sure services scale and can keep up if the load increases to add locations data and locations can be added async. 
+- The main service is broken into 3 micro services - connections-api, locations-api and persons-api.
+- New location can be added using the locations-producers service using the gRPC. The producer will produce the message to the KAFKA and consumer service running will consume it and sends the rest request to add the new location. 

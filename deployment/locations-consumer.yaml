@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: locations-consumer
+  name: locations-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: locations-consumer
+  template:
+    metadata:
+      labels:
+        service: locations-consumer
+    spec:
+      containers:
+      - image: reversearrow/locations-consumer:latest
+        name: locations-consumer
+        imagePullPolicy: Always
+        env:
+        - name: TOPIC_NAME
+          value: "location-events"
+        - name: KAFKA_SERVER
+          value: "gke-kafka.default.svc.cluster.local:9092"
+        - name: LOCATIONS_URL
+          value: "http://localhost:30002/api/locations"                    
+      restartPolicy: Always
